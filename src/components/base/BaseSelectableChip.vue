@@ -39,6 +39,8 @@ const chipClasses = computed(() => {
     &:hover {
         background: abstracts.$color-action;
         color: abstracts.$color-text-lighten;
+        border: none;
+        cursor: pointer;
     }
 }
 </style>
