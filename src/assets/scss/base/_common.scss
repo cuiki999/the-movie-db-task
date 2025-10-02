@@ -1,0 +1,7 @@
+@use '../abstracts';
+
+.card {
+    box-shadow: abstracts.$box-shadow-subtle;
+    border: 1px solid abstracts.$color-border-light;
+    border-radius: abstracts.$border-radius-sm;
+}

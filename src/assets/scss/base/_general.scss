@@ -1,0 +1,13 @@
+@use '../abstracts';
+
+html,
+body {
+    font-size: 16px;
+}
+
+#app {
+    font-family: abstracts.$font-open-sans;
+    font-weight: abstracts.$font-weight-normal;
+    color: abstracts.$color-text-primary;
+    background: abstracts.$color-background-primary;
+}
