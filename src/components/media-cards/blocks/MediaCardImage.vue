@@ -1,12 +1,12 @@
 <template>
     <div class="image-wrapper">
-        <img :src="props.src" :alt="props.alt" />
+        <img v-if="props.src" loading="lazy" :src="props.src" :alt="props.alt" />
     </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-    src: string;
+    src?: string;
     alt?: string;
 }>();
 </script>

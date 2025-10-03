@@ -1,10 +1,10 @@
 <template>
     <div class="media-card card">
-        <MediaCardImage :src="props.data.image" :alt="props.data.title" />
+        <MediaCardImage :src="props.imageSrc" :alt="props.title" />
         <div class="content">
-            <MediaCardScore :score="props.data.score" />
-            <MediaCardTitle :title="props.data.title" />
-            <MediaCardDate :date="props.data.releaseDate" />
+            <MediaCardScore :score="props.score" />
+            <MediaCardTitle :title="props.title" />
+            <MediaCardDate :date="props.releaseDate" />
         </div>
     </div>
 </template>
@@ -14,13 +14,20 @@ import MediaCardDate from '@/components/media-cards/blocks/MediaCardDate.vue';
 import MediaCardImage from '@/components/media-cards/blocks/MediaCardImage.vue';
 import MediaCardScore from '@/components/media-cards/blocks/MediaCardScore.vue';
 import MediaCardTitle from '@/components/media-cards/blocks/MediaCardTitle.vue';
-import type { MediaCard } from '@/types/media-card.ts';
 
 const props = defineProps<{
-    data: MediaCard;
+    imageSrc?: string;
+    title: string;
+    score?: number;
+    releaseDate?: Date;
 }>();
 </script>
 
 <style scoped lang="scss">
 @use '@/assets/scss/abstracts';
+
+.media-card {
+    width: 300px;
+    height: 600px;
+}
 </style>

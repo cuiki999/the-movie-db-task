@@ -8,24 +8,30 @@
                     <template #genres>
                         <div class="chip-container">
                             <BaseSelectableChip
-                                v-for="(chip, index) in chips"
-                                :key="`chip_${index}`"
-                                :title="chip.title"
-                                :is-selected="chip.isSelected"
-                                :value="chip.value"
+                                v-for="genre in genreList"
+                                :key="`chip_genre_${genre.id}`"
+                                :title="genre.name"
+                                :is-selected="genre.isSelected"
+                                :value="genre.id"
+                                @toggle-chip="genre.isSelected = !genre.isSelected"
                             />
                         </div>
+                        <button @click="applyFilters">Search</button>
                     </template>
                 </FilterPanel>
             </template>
             <template #content>
-                <CardGridLayout>
-                    <BaseMediaCard
-                        v-for="mediaCard in mediaCards"
-                        :key="mediaCard.id"
-                        :data="mediaCard"
+                <div ref="card-container" class="card-grid">
+                    <MediaCard
+                        v-for="movie in movieList"
+                        :key="movie.id"
+                        :image-src="movie.imageSrc"
+                        :title="movie.title"
+                        :score="movie.score"
+                        :release-date="movie.releaseDate"
                     />
-                </CardGridLayout>
+                </div>
+                <button v-if="areMoreMoviesAvailable" @click="loadMoreMovies">Load more</button>
             </template>
         </SidebarLayout>
     </main>
@@ -34,57 +40,67 @@
 <script setup lang="ts">
 import BaseSelectableChip from '@/components/base/BaseSelectableChip.vue';
 import FilterPanel from '@/components/filters/FilterPanel.vue';
-import BaseMediaCard from '@/components/media-cards/BaseMediaCard.vue';
-import CardGridLayout from '@/layout/CardGridLayout.vue';
+import MediaCard from '@/components/media-cards/MediaCard.vue';
+import { useGenres } from '@/composables/useGenres.ts';
+import { useMovies } from '@/composables/useMovies.ts';
 import SidebarLayout from '@/layout/SidebarLayout.vue';
-import type { MediaCard } from '@/types/media-card.ts';
-import { ref } from 'vue';
+import type { Ref } from 'vue';
+import type { SelectedFilters } from '@/types/selected-filters.ts';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
-const chips = ref([
-    {
-        isSelected: false,
-        title: 'Test',
-        value: 1,
-    },
-]);
+// composables
+const { movieList, areMoreMoviesAvailable, loadMovies, prepareReload } = useMovies();
+const { genreList, selectedGenres, loadGenres } = useGenres();
 
-const mediaCards = ref<MediaCard[]>([
-    {
-        id: 1,
-        title: 'Test 1',
-        score: 77,
-        image: '',
-        releaseDate: new Date('1970-10-10'),
-    },
-    {
-        id: 2,
-        title: 'Test 2',
-        score: 77,
-        image: '',
-        releaseDate: new Date('1970-10-10'),
-    },
-    {
-        id: 3,
-        title: 'Test 3',
-        score: 77,
-        image: '',
-        releaseDate: new Date('1970-10-10'),
-    },
-    {
-        id: 4,
-        title: 'Test 4',
-        score: 77,
-        image: '',
-        releaseDate: new Date('1970-10-10'),
-    },
-    {
-        id: 5,
-        title: 'Test 5',
-        score: 77,
-        image: '',
-        releaseDate: new Date('1970-10-10'),
-    },
-]);
+const cardContainer: Ref = useTemplateRef('card-container');
+const enableInfinityScroll = ref(false);
+
+const selectedFilters = computed((): SelectedFilters => {
+    return {
+        genres: selectedGenres.value,
+    };
+});
+
+onMounted(() => {
+    loadGenres();
+    loadMovies();
+
+    window.addEventListener('scroll', onScroll);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', onScroll);
+});
+
+const onScroll = () => {
+    // debounce could be introduced here for better performance
+    const conditions = cardContainer.value && enableInfinityScroll.value;
+
+    if (!conditions) {
+        return;
+    }
+
+    const offset = 50;
+    const hasReachedBottom =
+        cardContainer.value.getBoundingClientRect().bottom - offset < window.innerHeight;
+
+    if (hasReachedBottom) {
+        loadMovies(selectedFilters.value);
+    }
+};
+
+const applyFilters = () => {
+    enableInfinityScroll.value = false;
+
+    prepareReload();
+    loadMovies(selectedFilters.value);
+};
+
+const loadMoreMovies = () => {
+    enableInfinityScroll.value = true;
+
+    loadMovies(selectedFilters.value);
+};
 </script>
 
 <style scoped lang="scss">

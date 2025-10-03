@@ -1,10 +1,10 @@
 <template>
-    <div>{{ props.score }}</div>
+    <div>{{ props.score ?? 'No score' }}</div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-    score: number;
+    score?: number;
 }>();
 </script>
 

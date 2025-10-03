@@ -3,15 +3,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 const props = defineProps<{
-    date: Date;
+    date?: Date;
 }>();
 
 // todo utils/composables
-const formattedDate = props.date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+const formattedDate = computed(() => {
+    if (!props.date) {
+        return '';
+    }
+
+    return props.date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    });
 });
 </script>
 

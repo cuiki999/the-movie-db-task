@@ -1,5 +1,5 @@
 <template>
-    <button :class="chipClasses">
+    <button :class="chipClasses" @click="$emit('toggle-chip')">
         {{ title }}
     </button>
 </template>
@@ -13,6 +13,8 @@ const props = defineProps<{
     value: number;
 }>();
 
+defineEmits(['toggle-chip']);
+
 const chipClasses = computed(() => {
     const classes = ['chip'];
 
@@ -20,7 +22,7 @@ const chipClasses = computed(() => {
         classes.push('selected');
     }
 
-    return classes.join();
+    return classes.join(' ');
 });
 </script>
 
@@ -39,7 +41,7 @@ const chipClasses = computed(() => {
     &:hover {
         background: abstracts.$color-action;
         color: abstracts.$color-text-lighten;
-        border: none;
+        border: 1px solid transparent;
         cursor: pointer;
     }
 }
