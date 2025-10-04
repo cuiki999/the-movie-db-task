@@ -15,7 +15,7 @@ const props = defineProps<{
 
 defineEmits(['toggle-chip']);
 
-const chipClasses = computed(() => {
+const chipClasses = computed((): string => {
     const classes = ['chip'];
 
     if (props.isSelected) {
@@ -30,10 +30,10 @@ const chipClasses = computed(() => {
 @use '@/assets/scss/abstracts';
 
 .chip {
-    padding: 4px 12px; // todo
+    padding: 5px 14px;
     background: abstracts.$color-background-primary;
     color: abstracts.$color-text-primary;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     border: 1px solid abstracts.$color-border-dark;
     border-radius: abstracts.$border-radius-lg;
 

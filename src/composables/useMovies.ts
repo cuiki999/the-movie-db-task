@@ -16,10 +16,6 @@ export function useMovies() {
             return;
         }
 
-        if (currentPage === 0) {
-            movieList.value = [];
-        }
-
         currentPage++;
         areMoviesFetching.value = true;
 
@@ -57,8 +53,13 @@ export function useMovies() {
                         score: item.vote_average,
                         releaseDate: item.release_date ? new Date(item.release_date) : undefined,
                         imageSrc: item.poster_path,
+                        overview: item.overview,
                     };
                 });
+
+                if (currentPage === 1) {
+                    movieList.value = [];
+                }
 
                 movieList.value.push(...newMovies);
 

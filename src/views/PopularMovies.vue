@@ -1,7 +1,7 @@
 <template>
     <main>
-        <h1>Popular Movies</h1>
         <SidebarLayout>
+            <template #title>Popular Movies</template>
             <template #sidebar>
                 <FilterPanel>
                     <template #title>Filters</template>
@@ -13,12 +13,16 @@
                                 :title="genre.name"
                                 :is-selected="genre.isSelected"
                                 :value="genre.id"
-                                @toggle-chip="genre.isSelected = !genre.isSelected"
+                                @toggle-chip="onToggleChip(genre)"
                             />
                         </div>
-                        <button @click="applyFilters">Search</button>
                     </template>
                 </FilterPanel>
+                <BaseButton
+                    text="Search"
+                    :isInactive="areFiltersPristine"
+                    @press-button="applyFilters"
+                ></BaseButton>
             </template>
             <template #content>
                 <div ref="card-container" class="card-grid">
@@ -29,21 +33,29 @@
                         :title="movie.title"
                         :score="movie.score"
                         :release-date="movie.releaseDate"
+                        :overview="movie.overview"
                     />
                 </div>
-                <button v-if="areMoreMoviesAvailable" @click="loadMoreMovies">Load more</button>
+                <BaseButton
+                    v-if="areMoreMoviesAvailable"
+                    text="Load More"
+                    additionalClasses="load-button"
+                    @press-button="loadMoreMovies"
+                ></BaseButton>
             </template>
         </SidebarLayout>
     </main>
 </template>
 
 <script setup lang="ts">
+import BaseButton from '@/components/base/BaseButton.vue';
 import BaseSelectableChip from '@/components/base/BaseSelectableChip.vue';
 import FilterPanel from '@/components/filters/FilterPanel.vue';
 import MediaCard from '@/components/media-cards/MediaCard.vue';
 import { useGenres } from '@/composables/useGenres.ts';
 import { useMovies } from '@/composables/useMovies.ts';
 import SidebarLayout from '@/layout/SidebarLayout.vue';
+import type { Genre } from '@/types/genre.ts';
 import type { Ref } from 'vue';
 import type { SelectedFilters } from '@/types/selected-filters.ts';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
@@ -54,6 +66,7 @@ const { genreList, selectedGenres, loadGenres } = useGenres();
 
 const cardContainer: Ref = useTemplateRef('card-container');
 const enableInfinityScroll = ref(false);
+const areFiltersPristine = ref(true);
 
 const selectedFilters = computed((): SelectedFilters => {
     return {
@@ -100,6 +113,12 @@ const loadMoreMovies = () => {
     enableInfinityScroll.value = true;
 
     loadMovies(selectedFilters.value);
+};
+
+const onToggleChip = (genre: Genre) => {
+    areFiltersPristine.value = false;
+
+    genre.isSelected = !genre.isSelected;
 };
 </script>
 

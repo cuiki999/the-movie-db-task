@@ -1,20 +1,15 @@
 <template>
-    <p>{{ formattedDate }}</p>
+    <p class="media-card-date">{{ formattedDate }}</p>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 
 const props = defineProps<{
-    date?: Date;
+    date: Date;
 }>();
 
-// todo utils/composables
-const formattedDate = computed(() => {
-    if (!props.date) {
-        return '';
-    }
-
+const formattedDate = computed((): string => {
     return props.date.toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -25,4 +20,10 @@ const formattedDate = computed(() => {
 
 <style scoped lang="scss">
 @use '@/assets/scss/abstracts';
+
+.media-card-date {
+    margin-top: 2px;
+    color: abstracts.$color-text-muted;
+    font-size: 0.9rem;
+}
 </style>

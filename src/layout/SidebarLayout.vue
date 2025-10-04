@@ -1,10 +1,15 @@
 <template>
-    <section class="sidebar-layout">
-        <div class="sidebar">
-            <slot name="sidebar"></slot>
-        </div>
-        <div class="content">
-            <slot name="content"></slot>
+    <section class="content-wrapper">
+        <h1 class="sidebar-layout-title">
+            <slot name="title"></slot>
+        </h1>
+        <div class="sidebar-layout">
+            <div class="left-sidebar">
+                <slot name="sidebar"></slot>
+            </div>
+            <div class="right-content">
+                <slot name="content"></slot>
+            </div>
         </div>
     </section>
 </template>
@@ -14,11 +19,17 @@
 <style scoped lang="scss">
 @use '@/assets/scss/abstracts';
 
+.sidebar-layout-title {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: abstracts.$font-weight-semi-bold;
+}
+
 .sidebar-layout {
     display: flex;
-    gap: 40px;
+    gap: 30px;
 
-    @include abstracts.breakpoint(sm) {
+    @include abstracts.breakpoint(xs) {
         flex-direction: column;
     }
 
