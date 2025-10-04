@@ -27,6 +27,10 @@
             </template>
             <template #content>
                 <BaseErrorMessage v-if="movieListErrorMessage" :text="movieListErrorMessage" />
+                <BaseInfoMessage
+                    v-else-if="movieList.length === 0"
+                    text="No items were found that match your query."
+                />
                 <template v-else>
                     <div ref="card-container" class="card-grid">
                         <MediaCard
@@ -54,6 +58,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseErrorMessage from '@/components/base/BaseErrorMessage.vue';
+import BaseInfoMessage from '@/components/base/BaseInfoMessage.vue';
 import BaseSelectableChip from '@/components/base/BaseSelectableChip.vue';
 import FilterPanel from '@/components/filters/FilterPanel.vue';
 import MediaCard from '@/components/media-cards/MediaCard.vue';
