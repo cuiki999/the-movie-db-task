@@ -10,6 +10,7 @@ export function useMovies() {
     const movieListErrorMessage: Ref<string> = ref('');
     const areMoreMoviesAvailable = ref(true);
 
+    // private variables
     let currentPage = 0;
 
     function prepareQueryParams(selectedFilters?: SelectedFilters): MovieRequestParams {

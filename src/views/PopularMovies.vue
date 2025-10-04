@@ -44,7 +44,7 @@
                         />
                     </div>
                     <BaseButton
-                        v-if="areMoreMoviesAvailable"
+                        v-if="areMoreMoviesAvailable && !enableInfinityScroll"
                         text="Load More"
                         additionalClasses="load-button"
                         @press-button="loadMoreMovies"
