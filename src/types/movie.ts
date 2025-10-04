@@ -15,3 +15,13 @@ export interface ResponseMovie {
     poster_path: string;
     overview: string;
 }
+
+export interface ResponseMovieData {
+    results: ResponseMovie[];
+    total_pages: number;
+}
+
+export interface MovieRequestParams {
+    page: number;
+    with_genres?: string;
+}

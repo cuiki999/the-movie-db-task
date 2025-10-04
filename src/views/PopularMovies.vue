@@ -6,7 +6,8 @@
                 <FilterPanel>
                     <template #title>Filters</template>
                     <template #genres>
-                        <div class="chip-container">
+                        <BaseErrorMessage v-if="genreErrorMessage" :text="genreErrorMessage" />
+                        <div v-else class="chip-container">
                             <BaseSelectableChip
                                 v-for="genre in genreList"
                                 :key="`chip_genre_${genre.id}`"
@@ -25,23 +26,26 @@
                 ></BaseButton>
             </template>
             <template #content>
-                <div ref="card-container" class="card-grid">
-                    <MediaCard
-                        v-for="movie in movieList"
-                        :key="movie.id"
-                        :image-src="movie.imageSrc"
-                        :title="movie.title"
-                        :score="movie.score"
-                        :release-date="movie.releaseDate"
-                        :overview="movie.overview"
-                    />
-                </div>
-                <BaseButton
-                    v-if="areMoreMoviesAvailable"
-                    text="Load More"
-                    additionalClasses="load-button"
-                    @press-button="loadMoreMovies"
-                ></BaseButton>
+                <BaseErrorMessage v-if="movieListErrorMessage" :text="movieListErrorMessage" />
+                <template v-else>
+                    <div ref="card-container" class="card-grid">
+                        <MediaCard
+                            v-for="movie in movieList"
+                            :key="movie.id"
+                            :image-src="movie.imageSrc"
+                            :title="movie.title"
+                            :score="movie.score"
+                            :release-date="movie.releaseDate"
+                            :overview="movie.overview"
+                        />
+                    </div>
+                    <BaseButton
+                        v-if="areMoreMoviesAvailable"
+                        text="Load More"
+                        additionalClasses="load-button"
+                        @press-button="loadMoreMovies"
+                    ></BaseButton>
+                </template>
             </template>
         </SidebarLayout>
     </main>
@@ -49,6 +53,7 @@
 
 <script setup lang="ts">
 import BaseButton from '@/components/base/BaseButton.vue';
+import BaseErrorMessage from '@/components/base/BaseErrorMessage.vue';
 import BaseSelectableChip from '@/components/base/BaseSelectableChip.vue';
 import FilterPanel from '@/components/filters/FilterPanel.vue';
 import MediaCard from '@/components/media-cards/MediaCard.vue';
@@ -61,8 +66,9 @@ import type { SelectedFilters } from '@/types/selected-filters.ts';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // composables
-const { movieList, areMoreMoviesAvailable, loadMovies, prepareReload } = useMovies();
-const { genreList, selectedGenres, loadGenres } = useGenres();
+const { movieList, areMoreMoviesAvailable, movieListErrorMessage, loadMovies, prepareReload } =
+    useMovies();
+const { genreList, selectedGenres, genreErrorMessage, loadGenres } = useGenres();
 
 const cardContainer: Ref = useTemplateRef('card-container');
 const enableInfinityScroll = ref(false);

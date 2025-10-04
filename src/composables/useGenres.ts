@@ -1,10 +1,11 @@
-import axios from 'axios';
-import type { Genre, ResponseGenre } from '@/types/genre.ts';
+import type { Genre, ResponseGenre, ResponseGenreData } from '@/types/genre.ts';
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
+import { useAxios } from '@/actions/server.ts';
 
 export function useGenres() {
     const genreList: Ref<Genre[]> = ref([]);
+    const genreErrorMessage: Ref<string> = ref('');
 
     const selectedGenres = computed((): string => {
         const selectedGenreArray: number[] = [];
@@ -19,17 +20,12 @@ export function useGenres() {
     });
 
     async function loadGenres(): Promise<void> {
-        const url = 'https://api.themoviedb.org/3/genre/movie/list?language=en';
-        const params = {
-            api_key: import.meta.env.VITE_API_KEY,
-        };
+        const url = '/genre/movie/list?language=en';
+        const { fetch } = useAxios();
 
-        axios
-            .get(url, {
-                params,
-            })
-            .then((res) => {
-                const results: ResponseGenre[] = res?.data?.genres;
+        try {
+            await fetch(url).then((data): void => {
+                const results: ResponseGenre[] = (data as ResponseGenreData).genres;
 
                 genreList.value = results.map((item: ResponseGenre): Genre => {
                     return {
@@ -38,15 +34,18 @@ export function useGenres() {
                         isSelected: false,
                     };
                 });
-            })
-            .catch((err) => {
-                console.log(err);
+
+                genreErrorMessage.value = '';
             });
+        } catch (error) {
+            genreErrorMessage.value = typeof error === 'string' ? error : 'Something went wrong.';
+        }
     }
 
     return {
         genreList,
         selectedGenres,
+        genreErrorMessage,
         loadGenres,
     };
 }

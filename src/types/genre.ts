@@ -8,3 +8,7 @@ export interface ResponseGenre {
     id: number;
     name: string;
 }
+
+export interface ResponseGenreData {
+    genres: ResponseGenre[];
+}

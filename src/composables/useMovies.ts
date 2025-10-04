@@ -1,50 +1,64 @@
+import { useAxios } from '@/actions/server.ts';
+import type { Movie, MovieRequestParams, ResponseMovie, ResponseMovieData } from '@/types/movie.ts';
 import type { SelectedFilters } from '@/types/selected-filters.ts';
-import type { Movie, ResponseMovie } from '@/types/movie.ts';
 import type { Ref } from 'vue';
-import axios from 'axios';
 import { ref } from 'vue';
 
 export function useMovies() {
-    let currentPage = 0;
-
     const areMoviesFetching = ref(false);
     const movieList: Ref<Movie[]> = ref([]);
+    const movieListErrorMessage: Ref<string> = ref('');
     const areMoreMoviesAvailable = ref(true);
+
+    let currentPage = 0;
+
+    function prepareQueryParams(selectedFilters?: SelectedFilters): MovieRequestParams {
+        const params: MovieRequestParams = {
+            page: currentPage,
+        };
+
+        // dynamic params
+        if (selectedFilters && selectedFilters?.genres?.length > 0) {
+            params.with_genres = selectedFilters.genres;
+        }
+
+        return params;
+    }
+
+    function prepareReload(): void {
+        currentPage = 0;
+        areMoreMoviesAvailable.value = true;
+    }
+
+    function incrementPage(): void {
+        currentPage++;
+    }
+
+    function populateMovieList(newMovies: Movie[]): void {
+        if (currentPage === 1) {
+            movieList.value = [];
+        }
+
+        movieList.value.push(...newMovies);
+    }
 
     async function loadMovies(selectedFilters?: SelectedFilters): Promise<void> {
         if (!areMoreMoviesAvailable.value || areMoviesFetching.value) {
             return;
         }
 
-        currentPage++;
         areMoviesFetching.value = true;
+        incrementPage();
 
         const url =
-            'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc';
+            '/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc';
+        const params = prepareQueryParams(selectedFilters);
+        const { fetch } = useAxios();
 
-        interface MovieRequestParams {
-            api_key: string;
-            page: number;
-            with_genres?: string;
-        }
-
-        const params: MovieRequestParams = {
-            api_key: import.meta.env.VITE_API_KEY,
-            page: currentPage,
-        };
-
-        // dynamic params
-        if (selectedFilters && selectedFilters.genres.length > 0) {
-            params.with_genres = selectedFilters.genres;
-        }
-
-        axios
-            .get(url, {
-                params,
-            })
-            .then((res) => {
-                const results: ResponseMovie[] = res?.data?.results;
-                const totalPages = res?.data?.total_pages;
+        try {
+            await fetch(url, params).then((data): void => {
+                const results: ResponseMovie[] = (data as ResponseMovieData).results;
+                const totalPages = (data as ResponseMovieData).total_pages;
 
                 const newMovies: Movie[] = results.map((item: ResponseMovie): Movie => {
                     return {
@@ -57,35 +71,27 @@ export function useMovies() {
                     };
                 });
 
-                if (currentPage === 1) {
-                    movieList.value = [];
-                }
-
-                movieList.value.push(...newMovies);
+                populateMovieList(newMovies);
 
                 if (currentPage >= totalPages) {
                     areMoreMoviesAvailable.value = false;
                 }
 
-                console.log(movieList.value);
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-            .finally(() => {
-                areMoviesFetching.value = false;
+                movieListErrorMessage.value = '';
             });
-    }
-
-    function prepareReload(): void {
-        currentPage = 0;
-        areMoreMoviesAvailable.value = true;
+        } catch (error) {
+            movieListErrorMessage.value =
+                typeof error === 'string' ? error : 'Something went wrong.';
+        } finally {
+            areMoviesFetching.value = false;
+        }
     }
 
     return {
         movieList,
         areMoviesFetching,
         areMoreMoviesAvailable,
+        movieListErrorMessage,
         loadMovies,
         prepareReload,
     };
